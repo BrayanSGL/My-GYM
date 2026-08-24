@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { DayTabs } from '@/components/features/routine/DayTabs'
 import { RoutineExerciseItem } from '@/components/features/routine/RoutineExerciseItem'
+import { ExportSetsSection } from '@/components/features/routine-manager/ExportSetsSection'
 import { RoutineExerciseEditor } from '@/components/features/routine-manager/RoutineExerciseEditor'
 import { RoutineList } from '@/components/features/routine-manager/RoutineList'
 import { useActiveRoutine } from '@/hooks/useActiveRoutine'
@@ -126,6 +127,8 @@ function RoutineManager() {
           Descargar rutina actual (CSV)
         </Button>
       )}
+
+      <ExportSetsSection />
 
       <RoutineList
         routines={routines}

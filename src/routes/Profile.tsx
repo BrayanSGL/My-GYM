@@ -89,11 +89,7 @@ export default function Profile() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <Input label="Nombre completo" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-        <Input
-          label="Nombre de usuario"
-          value={username}
-          onChange={(e) => setUsername(e.target.value.trim().toLowerCase())}
-        />
+        <Input label="Nombre de usuario" value={username} onChange={(e) => setUsername(e.target.value)} />
         {error && <p className="text-sm text-danger">{error}</p>}
         {savedMessage && <p className="text-sm text-accent-secondary">Perfil actualizado.</p>}
         <Button type="submit" disabled={saving}>

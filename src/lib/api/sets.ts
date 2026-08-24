@@ -40,6 +40,20 @@ export async function countSetsSince(isoDate: string): Promise<number> {
   return count ?? 0
 }
 
+export type SetWithExerciseInfo = WorkoutSet & { exercises: { name: string; muscle_group: string } | null }
+
+export async function listSetsInRange(startDate: string, endDate: string): Promise<SetWithExerciseInfo[]> {
+  const { data, error } = await supabase
+    .from('workout_sets')
+    .select('*, exercises(name, muscle_group)')
+    .gte('set_date', startDate)
+    .lte('set_date', endDate)
+    .order('set_date', { ascending: true })
+    .order('created_at', { ascending: true })
+  if (error) throw error
+  return data
+}
+
 export async function getLastWorkoutDate(): Promise<string | null> {
   const { data, error } = await supabase
     .from('workout_sets')

@@ -1,4 +1,4 @@
-import { differenceInCalendarDays, format, formatDistanceToNow, startOfWeek } from 'date-fns'
+import { differenceInCalendarDays, format, formatDistanceToNow, startOfWeek, subMonths, subWeeks } from 'date-fns'
 import { es } from 'date-fns/locale'
 import type { DayOfWeek } from '@/types/database'
 
@@ -60,6 +60,28 @@ export function formatRelative(date: string | Date): string {
 
 export function startOfIsoWeek(date: Date = new Date()): Date {
   return startOfWeek(date, { locale: es, weekStartsOn: 1 })
+}
+
+export type ExportRangeKey = 'semana' | '1mes' | '2meses' | '3meses'
+
+export const EXPORT_RANGE_OPTIONS: { key: ExportRangeKey; label: string }[] = [
+  { key: 'semana', label: 'Semana' },
+  { key: '1mes', label: '1 mes' },
+  { key: '2meses', label: '2 meses' },
+  { key: '3meses', label: '3 meses' },
+]
+
+export function rangeStartDate(key: ExportRangeKey, from: Date = new Date()): Date {
+  switch (key) {
+    case 'semana':
+      return subWeeks(from, 1)
+    case '1mes':
+      return subMonths(from, 1)
+    case '2meses':
+      return subMonths(from, 2)
+    case '3meses':
+      return subMonths(from, 3)
+  }
 }
 
 export function formatRestSeconds(seconds: number | null): string | null {
