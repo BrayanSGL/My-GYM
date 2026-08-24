@@ -4,16 +4,24 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import type { NewSetInput } from '@/lib/api/sets'
 
+interface SetFormInitialValues {
+  weight?: string
+  reps?: string
+  rpe?: string
+  note?: string
+}
+
 interface SetFormProps {
   exerciseId: string
   onSubmit: (input: NewSetInput) => Promise<void>
+  initialValues?: SetFormInitialValues
 }
 
-export function SetForm({ exerciseId, onSubmit }: SetFormProps) {
-  const [weight, setWeight] = useState('')
-  const [reps, setReps] = useState('')
-  const [rpe, setRpe] = useState('')
-  const [note, setNote] = useState('')
+export function SetForm({ exerciseId, onSubmit, initialValues }: SetFormProps) {
+  const [weight, setWeight] = useState(initialValues?.weight ?? '')
+  const [reps, setReps] = useState(initialValues?.reps ?? '')
+  const [rpe, setRpe] = useState(initialValues?.rpe ?? '')
+  const [note, setNote] = useState(initialValues?.note ?? '')
   const [saving, setSaving] = useState(false)
 
   const handleSubmit = async (e: FormEvent) => {

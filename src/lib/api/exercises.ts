@@ -32,3 +32,17 @@ export async function getExercise(id: string): Promise<Exercise | null> {
   if (error) throw error
   return data
 }
+
+export async function uploadExerciseGif(userId: string, exerciseId: string, file: File): Promise<string> {
+  const ext = file.name.split('.').pop() ?? 'gif'
+  const path = `${userId}/${exerciseId}.${ext}`
+  const { error: uploadError } = await supabase.storage.from('exercise-gifs').upload(path, file, { upsert: true })
+  if (uploadError) throw uploadError
+  const { data } = supabase.storage.from('exercise-gifs').getPublicUrl(path)
+  const gifUrl = `${data.publicUrl}?t=${Date.now()}`
+
+  const { error } = await supabase.from('exercises').update({ gif_url: gifUrl }).eq('id', exerciseId)
+  if (error) throw error
+
+  return gifUrl
+}

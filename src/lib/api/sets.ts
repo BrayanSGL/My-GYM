@@ -39,6 +39,17 @@ export async function countSetsSince(isoDate: string): Promise<number> {
   return count ?? 0
 }
 
+export async function getLastWorkoutDate(): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('workout_sets')
+    .select('set_date')
+    .order('set_date', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (error) throw error
+  return data?.set_date ?? null
+}
+
 export async function createSet(input: NewSetInput): Promise<WorkoutSet> {
   const { data: userData, error: userError } = await supabase.auth.getUser()
   if (userError) throw userError

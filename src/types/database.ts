@@ -44,6 +44,7 @@ export interface Exercise {
   user_id: string
   name: string
   muscle_group: MuscleGroup
+  gif_url: string | null
   created_at: string
 }
 
@@ -92,7 +93,45 @@ export interface RoutineExercise {
   order_index: number
   scheme_text: string
   rest_text: string | null
+  rest_seconds: number | null
   technique_notes: string | null
   active: boolean
   created_at: string
 }
+
+export interface BodyMetric {
+  id: string
+  user_id: string
+  measured_at: string
+  weight_kg: number | null
+  body_fat_pct: number | null
+  muscle_mass_kg: number | null
+  skeletal_muscle_mass_kg: number | null
+  visceral_fat: number | null
+  waist_hip_ratio: number | null
+  body_water_pct: number | null
+  body_water_kg: number | null
+  note: string | null
+  created_at: string
+}
+
+export type BodyMetricKey =
+  | 'weight_kg'
+  | 'body_fat_pct'
+  | 'muscle_mass_kg'
+  | 'skeletal_muscle_mass_kg'
+  | 'visceral_fat'
+  | 'waist_hip_ratio'
+  | 'body_water_pct'
+  | 'body_water_kg'
+
+export const BODY_METRIC_FIELDS: { key: BodyMetricKey; label: string; unit: string }[] = [
+  { key: 'weight_kg', label: 'Peso corporal', unit: 'kg' },
+  { key: 'body_fat_pct', label: 'Grasa corporal', unit: '%' },
+  { key: 'muscle_mass_kg', label: 'Masa muscular', unit: 'kg' },
+  { key: 'skeletal_muscle_mass_kg', label: 'Masa muscular esquelética', unit: 'kg' },
+  { key: 'visceral_fat', label: 'Grasa visceral', unit: '' },
+  { key: 'waist_hip_ratio', label: 'Relación cintura-cadera', unit: '' },
+  { key: 'body_water_pct', label: 'Agua corporal (%)', unit: '%' },
+  { key: 'body_water_kg', label: 'Agua corporal (kg)', unit: 'kg' },
+]

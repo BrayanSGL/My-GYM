@@ -9,6 +9,8 @@ import Home from '@/routes/Home'
 import Login from '@/routes/Login'
 import Notes from '@/routes/Notes'
 import Profile from '@/routes/Profile'
+import Routine from '@/routes/Routine'
+import Session from '@/routes/Session'
 
 const Progress = lazy(() => import('@/routes/Progress'))
 
@@ -21,6 +23,8 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppShell />}>
               <Route index element={<Home />} />
+              <Route path="rutina" element={<Routine />} />
+              <Route path="sesion" element={<Session />} />
               <Route path="ejercicios" element={<Exercises />} />
               <Route path="ejercicios/:id" element={<ExerciseDetail />} />
               <Route path="notas" element={<Notes />} />

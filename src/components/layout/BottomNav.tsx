@@ -3,10 +3,10 @@ import { NavLink } from 'react-router-dom'
 
 const items = [
   { to: '/', label: 'Inicio', end: true },
+  { to: '/rutina', label: 'Rutina' },
   { to: '/ejercicios', label: 'Ejercicios' },
   { to: '/progreso', label: 'Progreso' },
   { to: '/notas', label: 'Notas' },
-  { to: '/perfil', label: 'Perfil' },
 ]
 
 export function BottomNav() {

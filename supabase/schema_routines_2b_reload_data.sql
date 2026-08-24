@@ -1,56 +1,10 @@
--- Mi Gym — Paso 2 de 2 para cargar rutinas.
--- Corré esto DESPUÉS de haber ejecutado schema_routines_1_enum.sql.
+-- Mi Gym — reintento SOLO de la carga de datos (usar si ya corriste schema_routines_2_data.sql
+-- una vez y te dio el error de "relation ... already exists" al reintentar el archivo completo).
+-- Las tablas y políticas ya existen; esto solo vuelve a insertar la rutina y los ejercicios.
 --
--- ANTES DE CORRERLO: reemplazá 'TU-CORREO@EJEMPLO.COM' más abajo por el email
--- con el que creaste tu cuenta en Mi Gym.
+-- ANTES DE CORRERLO: reemplazá 'TU-CORREO@EJEMPLO.COM' por tu email EXACTO
+-- (copialo de Authentication → Users en el dashboard de Supabase, no lo tipees de memoria).
 
--- 1) Un ejercicio no se repite dos veces con el mismo nombre en tu catálogo
-alter table exercises add constraint exercises_user_id_name_key unique (user_id, name);
-
--- 2) Rutinas: podés guardar varias (ej. "Fuerza", "Volumen") y marcar cuál está activa
-create table routines (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
-  name text not null,
-  is_active boolean not null default false,
-  created_at timestamptz not null default now(),
-  unique (user_id, name)
-);
-
--- Solo una rutina activa por usuario a la vez
-create unique index routines_one_active_per_user on routines(user_id) where is_active;
-
-alter table routines enable row level security;
-
-create policy "routines_owner" on routines
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-
--- 3) Ejercicios dentro de una rutina: día, orden, esquema de series/reps, descanso y notas técnicas
-create table routine_exercises (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
-  routine_id uuid not null references routines(id) on delete cascade,
-  exercise_id uuid not null references exercises(id) on delete cascade,
-  day_of_week text not null check (day_of_week in ('lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo')),
-  order_index integer not null,
-  scheme_text text not null,
-  rest_text text,
-  technique_notes text,
-  active boolean not null default true,
-  created_at timestamptz not null default now(),
-  unique (routine_id, exercise_id, day_of_week, order_index)
-);
-
-create index routine_exercises_routine_id_idx on routine_exercises(routine_id);
-create index routine_exercises_exercise_id_idx on routine_exercises(exercise_id);
-create index routine_exercises_day_idx on routine_exercises(day_of_week);
-
-alter table routine_exercises enable row level security;
-
-create policy "routine_exercises_owner" on routine_exercises
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-
--- 4) Carga de tu rutina actual (lunes a viernes)
 with target_user as (
   select id as user_id from auth.users where email = 'bgaleanolara@gmail.com'
 ),
