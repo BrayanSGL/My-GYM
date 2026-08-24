@@ -1,0 +1,113 @@
+{
+  "primitive": {
+    "color": {
+      "ink": {
+        "950": "#0b0f17",
+        "900": "#141b26",
+        "800": "#1f2937",
+        "700": "#2b3648"
+      },
+      "slate": {
+        "500": "#64748b",
+        "300": "#94a3b8",
+        "100": "#cbd5e1"
+      },
+      "white": "#f8fafc",
+      "ember": {
+        "500": "#f97316",
+        "600": "#ea580c"
+      },
+      "lime": {
+        "500": "#22c55e",
+        "600": "#16a34a"
+      },
+      "red": {
+        "500": "#ef4444"
+      }
+    },
+    "spacing": {
+      "1": "4px",
+      "2": "8px",
+      "3": "12px",
+      "4": "16px",
+      "5": "20px",
+      "6": "24px",
+      "8": "32px"
+    },
+    "radius": {
+      "sm": "6px",
+      "md": "10px",
+      "lg": "16px",
+      "full": "9999px"
+    },
+    "font": {
+      "heading": "'Barlow Condensed', system-ui, sans-serif",
+      "body": "'Barlow', system-ui, sans-serif",
+      "size": {
+        "xs": "12px",
+        "sm": "14px",
+        "base": "16px",
+        "lg": "18px",
+        "xl": "22px",
+        "2xl": "28px",
+        "3xl": "36px"
+      }
+    }
+  },
+  "semantic": {
+    "background": "{primitive.color.ink.950}",
+    "surface": "{primitive.color.ink.900}",
+    "surface-raised": "{primitive.color.ink.800}",
+    "border": "{primitive.color.ink.700}",
+    "text-primary": "{primitive.color.white}",
+    "text-secondary": "{primitive.color.slate.100}",
+    "text-muted": "{primitive.color.slate.300}",
+    "accent-primary": "{primitive.color.ember.500}",
+    "accent-primary-hover": "{primitive.color.ember.600}",
+    "accent-secondary": "{primitive.color.lime.500}",
+    "accent-secondary-hover": "{primitive.color.lime.600}",
+    "danger": "{primitive.color.red.500}"
+  },
+  "component": {
+    "button-primary": {
+      "bg": "{semantic.accent-primary}",
+      "bg-hover": "{semantic.accent-primary-hover}",
+      "text": "{primitive.color.ink.950}",
+      "radius": "{primitive.radius.md}"
+    },
+    "button-secondary": {
+      "bg": "{semantic.surface-raised}",
+      "text": "{semantic.text-primary}",
+      "border": "{semantic.border}",
+      "radius": "{primitive.radius.md}"
+    },
+    "button-danger": {
+      "bg": "{semantic.danger}",
+      "text": "{primitive.color.white}",
+      "radius": "{primitive.radius.md}"
+    },
+    "card": {
+      "bg": "{semantic.surface}",
+      "border": "{semantic.border}",
+      "radius": "{primitive.radius.lg}",
+      "padding": "{primitive.spacing.4}"
+    },
+    "input": {
+      "bg": "{semantic.surface-raised}",
+      "border": "{semantic.border}",
+      "text": "{semantic.text-primary}",
+      "radius": "{primitive.radius.md}"
+    },
+    "nav": {
+      "bg": "{semantic.surface}",
+      "border": "{semantic.border}",
+      "active": "{semantic.accent-primary}",
+      "inactive": "{semantic.text-muted}"
+    },
+    "badge": {
+      "bg": "{semantic.surface-raised}",
+      "text": "{semantic.text-secondary}",
+      "radius": "{primitive.radius.full}"
+    }
+  }
+}
