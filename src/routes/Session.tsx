@@ -8,12 +8,12 @@ import { Timer } from '@/components/ui/Timer'
 import { SetForm } from '@/components/features/sets/SetForm'
 import { useActiveRoutine } from '@/hooks/useActiveRoutine'
 import { createSet, type NewSetInput } from '@/lib/api/sets'
-import { todayDayOfWeek } from '@/lib/date'
+import { localDateStamp, todayDayOfWeek } from '@/lib/date'
 import { clearSessionState, loadSessionState, saveSessionState, type SessionPhase, type SessionSetValues } from '@/lib/sessionState'
 import { MUSCLE_GROUPS } from '@/types/database'
 
 const DEFAULT_REST_SECONDS = 60
-const todayKey = new Date().toISOString().slice(0, 10)
+const todayKey = localDateStamp()
 
 function parseSetsCount(schemeText: string): number {
   const match = schemeText.match(/(\d+)/)

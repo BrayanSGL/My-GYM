@@ -8,8 +8,36 @@ export function todayDayOfWeek(date: Date = new Date()): DayOfWeek {
   return JS_DAY_TO_DAY_OF_WEEK[date.getDay()]
 }
 
+/**
+ * Fecha local en formato YYYY-MM-DD. A diferencia de `date.toISOString().slice(0, 10)`,
+ * usa el calendario del dispositivo (no UTC) — evita que series/mediciones cerca de la
+ * medianoche queden guardadas con la fecha del día anterior o siguiente.
+ */
+export function localDateStamp(date: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+}
+
+const DATE_ONLY_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/
+
+/**
+ * `new Date("YYYY-MM-DD")` lo interpreta el motor de JS como medianoche UTC, no como
+ * medianoche local — en husos horarios detrás de UTC eso muestra el día anterior. Para
+ * fechas "sin hora" (set_date, measured_at si algún día vuelve a ser date) armamos el
+ * Date con los componentes locales en vez de dejar que se interprete como UTC.
+ */
+function parseDateInput(date: string | Date): Date {
+  if (date instanceof Date) return date
+  const match = DATE_ONLY_PATTERN.exec(date)
+  if (match) {
+    const [, year, month, day] = match
+    return new Date(Number(year), Number(month) - 1, Number(day))
+  }
+  return new Date(date)
+}
+
 export function formatDate(date: string | Date, pattern = "d 'de' MMMM"): string {
-  return format(new Date(date), pattern, { locale: es })
+  return format(parseDateInput(date), pattern, { locale: es })
 }
 
 export function formatTime(date: Date = new Date()): string {
@@ -17,7 +45,7 @@ export function formatTime(date: Date = new Date()): string {
 }
 
 export function daysSince(date: string | Date): number {
-  return differenceInCalendarDays(new Date(), new Date(date))
+  return differenceInCalendarDays(new Date(), parseDateInput(date))
 }
 
 export function greetingForHour(hour: number = new Date().getHours()): string {

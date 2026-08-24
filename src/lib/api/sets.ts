@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { localDateStamp } from '@/lib/date'
 import type { WorkoutSet } from '@/types/database'
 
 export interface NewSetInput {
@@ -62,6 +63,7 @@ export async function createSet(input: NewSetInput): Promise<WorkoutSet> {
       rpe: input.rpe,
       note: input.note,
       user_id: userData.user!.id,
+      set_date: localDateStamp(),
     })
     .select()
     .single()

@@ -9,7 +9,7 @@ import { useAuth } from '@/context/AuthProvider'
 import { useActiveRoutine } from '@/hooks/useActiveRoutine'
 import { useProfile } from '@/hooks/useProfile'
 import { countSetsSince, getLastWorkoutDate, listRecentSets } from '@/lib/api/sets'
-import { daysSince, formatTime, greetingForHour, startOfIsoWeek } from '@/lib/date'
+import { daysSince, formatTime, greetingForHour, localDateStamp, startOfIsoWeek } from '@/lib/date'
 import type { WorkoutSet } from '@/types/database'
 
 function formatDaysSinceWorkout(lastWorkoutDate: string | null): string {
@@ -34,7 +34,7 @@ export default function Home() {
 
   useEffect(() => {
     async function load() {
-      const weekStart = startOfIsoWeek().toISOString().slice(0, 10)
+      const weekStart = localDateStamp(startOfIsoWeek())
       const [setsCount, recent, lastDate] = await Promise.all([
         countSetsSince(weekStart),
         listRecentSets(5),
