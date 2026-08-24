@@ -3,7 +3,6 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
 import { AuthProvider } from '@/context/AuthProvider'
-import Exercises from '@/routes/Exercises'
 import ExerciseDetail from '@/routes/ExerciseDetail'
 import Home from '@/routes/Home'
 import Login from '@/routes/Login'
@@ -25,7 +24,6 @@ function App() {
               <Route index element={<Home />} />
               <Route path="rutina" element={<Routine />} />
               <Route path="sesion" element={<Session />} />
-              <Route path="ejercicios" element={<Exercises />} />
               <Route path="ejercicios/:id" element={<ExerciseDetail />} />
               <Route path="notas" element={<Notes />} />
               <Route path="perfil" element={<Profile />} />

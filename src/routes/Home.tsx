@@ -75,7 +75,7 @@ export default function Home() {
       <div className="flex gap-3">
         <motion.div whileTap={{ scale: 0.96 }} className="flex-1">
           <Link
-            to="/ejercicios"
+            to="/rutina"
             className="flex min-h-11 items-center justify-center rounded-xl bg-[var(--button-primary-bg)] px-4 py-2.5 text-base font-medium text-[var(--button-primary-text)]"
           >
             Registrar serie

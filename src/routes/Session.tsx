@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -9,16 +9,16 @@ import { SetForm } from '@/components/features/sets/SetForm'
 import { useActiveRoutine } from '@/hooks/useActiveRoutine'
 import { createSet, type NewSetInput } from '@/lib/api/sets'
 import { todayDayOfWeek } from '@/lib/date'
+import { clearSessionState, loadSessionState, saveSessionState, type SessionPhase, type SessionSetValues } from '@/lib/sessionState'
 import { MUSCLE_GROUPS } from '@/types/database'
 
 const DEFAULT_REST_SECONDS = 60
+const todayKey = new Date().toISOString().slice(0, 10)
 
 function parseSetsCount(schemeText: string): number {
   const match = schemeText.match(/(\d+)/)
   return match ? Number(match[1]) : 3
 }
-
-type Phase = 'exercising' | 'resting' | 'finished'
 
 export default function Session() {
   const { routine, items, loading } = useActiveRoutine()
@@ -27,10 +27,34 @@ export default function Session() {
 
   const [exerciseIndex, setExerciseIndex] = useState(0)
   const [setIndex, setSetIndex] = useState(1)
-  const [phase, setPhase] = useState<Phase>('exercising')
-  const [lastValues, setLastValues] = useState<{ weight: string; reps: string; rpe: string; note: string } | null>(null)
+  const [phase, setPhase] = useState<SessionPhase>('exercising')
+  const [restEndsAt, setRestEndsAt] = useState<number | null>(null)
+  const [lastValues, setLastValues] = useState<SessionSetValues | null>(null)
+  const [hydrated, setHydrated] = useState(false)
 
-  if (loading) {
+  // Al entrar, recupera el progreso guardado de hoy (si recargaste la página a mitad de la sesión).
+  useEffect(() => {
+    if (!routine) return
+    const saved = loadSessionState(routine.id, todayKey)
+    if (saved) {
+      setExerciseIndex(saved.exerciseIndex)
+      setSetIndex(saved.setIndex)
+      setPhase(saved.phase)
+      setRestEndsAt(saved.restEndsAt)
+      setLastValues(saved.lastValues)
+    }
+    setHydrated(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routine?.id])
+
+  // Guarda el progreso en cada cambio, para poder recuperarlo si recargás por error.
+  useEffect(() => {
+    if (!hydrated || !routine) return
+    saveSessionState(routine.id, todayKey, { exerciseIndex, setIndex, phase, restEndsAt, lastValues })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, routine?.id, exerciseIndex, setIndex, phase, restEndsAt, lastValues])
+
+  if (loading || !hydrated) {
     return <p className="text-text-muted">Cargando…</p>
   }
 
@@ -46,27 +70,32 @@ export default function Session() {
     )
   }
 
-  const current = todayItems[exerciseIndex]
+  const current = todayItems[Math.min(exerciseIndex, todayItems.length - 1)]
   const exercise = current.exercises
   const totalSets = parseSetsCount(current.scheme_text)
   const isLastSetOfExercise = setIndex >= totalSets
   const isLastExercise = exerciseIndex >= todayItems.length - 1
   const groupLabel = exercise ? MUSCLE_GROUPS.find((g) => g.value === exercise.muscle_group)?.label : null
-  const restSeconds = current.rest_seconds ?? DEFAULT_REST_SECONDS
+  const restRemainingSeconds = restEndsAt != null ? Math.max(0, Math.round((restEndsAt - Date.now()) / 1000)) : 0
+
+  const exitSession = () => clearSessionState(routine.id, todayKey)
 
   const advance = () => {
     if (!isLastSetOfExercise) {
       setSetIndex((i) => i + 1)
+      setRestEndsAt(null)
       setPhase('exercising')
       return
     }
     if (!isLastExercise) {
       setExerciseIndex((i) => i + 1)
       setSetIndex(1)
+      setRestEndsAt(null)
       setLastValues(null)
       setPhase('exercising')
       return
     }
+    clearSessionState(routine.id, todayKey)
     setPhase('finished')
   }
 
@@ -78,6 +107,8 @@ export default function Session() {
       rpe: input.rpe != null ? String(input.rpe) : '',
       note: input.note ?? '',
     })
+    const restSeconds = current.rest_seconds ?? DEFAULT_REST_SECONDS
+    setRestEndsAt(Date.now() + restSeconds * 1000)
     setPhase('resting')
   }
 
@@ -99,7 +130,7 @@ export default function Session() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <Link to="/" className="text-sm text-text-secondary">
+        <Link to="/" onClick={exitSession} className="text-sm text-text-secondary">
           ✕ Salir
         </Link>
         <p className="text-sm text-text-muted">
@@ -116,7 +147,7 @@ export default function Session() {
       >
         {phase === 'resting' ? (
           <Card>
-            <Timer seconds={restSeconds} onComplete={advance} />
+            <Timer seconds={restRemainingSeconds} onComplete={advance} />
           </Card>
         ) : (
           <>

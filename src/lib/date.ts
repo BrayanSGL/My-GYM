@@ -33,3 +33,11 @@ export function formatRelative(date: string | Date): string {
 export function startOfIsoWeek(date: Date = new Date()): Date {
   return startOfWeek(date, { locale: es, weekStartsOn: 1 })
 }
+
+export function formatRestSeconds(seconds: number | null): string | null {
+  if (seconds == null) return null
+  if (seconds < 60) return `Descanso ${seconds} s`
+  const minutes = Math.floor(seconds / 60)
+  const remainder = seconds % 60
+  return remainder === 0 ? `Descanso ${minutes} min` : `Descanso ${minutes}:${String(remainder).padStart(2, '0')} min`
+}

@@ -52,8 +52,8 @@ export default function ExerciseDetail() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <Link to="/ejercicios" className="text-sm text-text-secondary">
-          ← Ejercicios
+        <Link to="/rutina" className="text-sm text-text-secondary">
+          ← Rutina
         </Link>
         <h1 className="font-heading text-3xl text-text-primary">{exercise?.name ?? 'Ejercicio'}</h1>
       </div>
