@@ -2,24 +2,24 @@
   "primitive": {
     "color": {
       "ink": {
-        "950": "#0b0f17",
-        "900": "#141b26",
-        "800": "#1f2937",
-        "700": "#2b3648"
+        "950": "#0d0b16",
+        "900": "#191623",
+        "800": "#241f33",
+        "700": "#332c47"
       },
       "slate": {
-        "500": "#64748b",
-        "300": "#94a3b8",
-        "100": "#cbd5e1"
+        "500": "#7b7594",
+        "300": "#9d97b3",
+        "100": "#cac5db"
       },
-      "white": "#f8fafc",
-      "ember": {
-        "500": "#f97316",
-        "600": "#ea580c"
+      "white": "#f7f5fb",
+      "violet": {
+        "500": "#7c3aed",
+        "600": "#6d28d9"
       },
-      "lime": {
-        "500": "#22c55e",
-        "600": "#16a34a"
+      "pink": {
+        "500": "#ec4899",
+        "600": "#db2777"
       },
       "red": {
         "500": "#ef4444"
@@ -41,8 +41,8 @@
       "full": "9999px"
     },
     "font": {
-      "heading": "'Barlow Condensed', system-ui, sans-serif",
-      "body": "'Barlow', system-ui, sans-serif",
+      "heading": "'Outfit', system-ui, sans-serif",
+      "body": "'Work Sans', system-ui, sans-serif",
       "size": {
         "xs": "12px",
         "sm": "14px",
@@ -62,17 +62,17 @@
     "text-primary": "{primitive.color.white}",
     "text-secondary": "{primitive.color.slate.100}",
     "text-muted": "{primitive.color.slate.300}",
-    "accent-primary": "{primitive.color.ember.500}",
-    "accent-primary-hover": "{primitive.color.ember.600}",
-    "accent-secondary": "{primitive.color.lime.500}",
-    "accent-secondary-hover": "{primitive.color.lime.600}",
+    "accent-primary": "{primitive.color.violet.500}",
+    "accent-primary-hover": "{primitive.color.violet.600}",
+    "accent-secondary": "{primitive.color.pink.500}",
+    "accent-secondary-hover": "{primitive.color.pink.600}",
     "danger": "{primitive.color.red.500}"
   },
   "component": {
     "button-primary": {
       "bg": "{semantic.accent-primary}",
       "bg-hover": "{semantic.accent-primary-hover}",
-      "text": "{primitive.color.ink.950}",
+      "text": "{primitive.color.white}",
       "radius": "{primitive.radius.md}"
     },
     "button-secondary": {

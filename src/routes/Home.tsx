@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Avatar } from '@/components/ui/Avatar'
 import { QuickStatCard } from '@/components/features/home/QuickStatCard'
 import { RecentActivityFeed } from '@/components/features/home/RecentActivityFeed'
 import { useAuth } from '@/context/AuthProvider'
+import { useProfile } from '@/hooks/useProfile'
 import { listExercises } from '@/lib/api/exercises'
 import { countSetsSince, listRecentSets } from '@/lib/api/sets'
 import { startOfIsoWeek } from '@/lib/date'
@@ -11,12 +13,13 @@ import type { WorkoutSet } from '@/types/database'
 
 export default function Home() {
   const { user } = useAuth()
+  const { profile } = useProfile()
   const [exerciseCount, setExerciseCount] = useState(0)
   const [setsThisWeek, setSetsThisWeek] = useState(0)
   const [recentSets, setRecentSets] = useState<(WorkoutSet & { exercises: { name: string } | null })[]>([])
   const [loading, setLoading] = useState(true)
 
-  const name = user?.email?.split('@')[0] ?? 'atleta'
+  const name = profile?.full_name || profile?.username || user?.email?.split('@')[0] || 'atleta'
 
   useEffect(() => {
     async function load() {
@@ -36,9 +39,14 @@ export default function Home() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="font-heading text-3xl capitalize text-text-primary">Hola, {name}</h1>
-        <p className="text-text-secondary">Así va tu semana.</p>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="font-heading text-3xl capitalize text-text-primary">Hola, {name}</h1>
+          <p className="text-text-secondary">Así va tu semana.</p>
+        </div>
+        <Link to="/perfil" aria-label="Ver perfil">
+          <Avatar src={profile?.avatar_url} name={name} size={48} />
+        </Link>
       </div>
 
       <div className="flex gap-3">

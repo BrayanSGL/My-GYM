@@ -8,6 +8,7 @@ import ExerciseDetail from '@/routes/ExerciseDetail'
 import Home from '@/routes/Home'
 import Login from '@/routes/Login'
 import Notes from '@/routes/Notes'
+import Profile from '@/routes/Profile'
 
 const Progress = lazy(() => import('@/routes/Progress'))
 
@@ -23,6 +24,7 @@ function App() {
               <Route path="ejercicios" element={<Exercises />} />
               <Route path="ejercicios/:id" element={<ExerciseDetail />} />
               <Route path="notas" element={<Notes />} />
+              <Route path="perfil" element={<Profile />} />
               <Route
                 path="progreso"
                 element={

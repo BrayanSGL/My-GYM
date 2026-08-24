@@ -6,6 +6,7 @@ const items = [
   { to: '/ejercicios', label: 'Ejercicios' },
   { to: '/progreso', label: 'Progreso' },
   { to: '/notas', label: 'Notas' },
+  { to: '/perfil', label: 'Perfil' },
 ]
 
 export function BottomNav() {

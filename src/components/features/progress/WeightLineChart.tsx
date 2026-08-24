@@ -24,7 +24,7 @@ export function WeightLineChart({ sets }: { sets: WorkoutSet[] }) {
             labelFormatter={(d) => (typeof d === 'string' ? formatDate(d) : d)}
             formatter={(value) => [`${value} kg`, 'Peso']}
           />
-          <Line type="monotone" dataKey="weight" stroke="var(--ember-500)" strokeWidth={2} dot={{ r: 3 }} />
+          <Line type="monotone" dataKey="weight" stroke="var(--violet-500)" strokeWidth={2} dot={{ r: 3 }} />
         </LineChart>
       </ResponsiveContainer>
     </div>
