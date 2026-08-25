@@ -15,6 +15,17 @@ export async function listNotes(): Promise<(Note & { exercises: { name: string }
   return data
 }
 
+export async function listNotesInRange(startIso: string, endIso: string): Promise<(Note & { exercises: { name: string } | null })[]> {
+  const { data, error } = await supabase
+    .from('notes')
+    .select('*, exercises(name)')
+    .gte('created_at', startIso)
+    .lte('created_at', endIso)
+    .order('created_at', { ascending: true })
+  if (error) throw error
+  return data
+}
+
 export async function createNote(input: NewNoteInput): Promise<Note> {
   const { data: userData, error: userError } = await supabase.auth.getUser()
   if (userError) throw userError

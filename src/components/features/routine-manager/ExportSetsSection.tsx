@@ -2,27 +2,39 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { listSetsInRange } from '@/lib/api/sets'
-import { EXPORT_RANGE_OPTIONS, localDateStamp, rangeStartDate, type ExportRangeKey } from '@/lib/date'
+import { listNotesInRange } from '@/lib/api/notes'
+import { EXPORT_RANGE_OPTIONS, localDateStamp, localDayBoundsIso, rangeStartDate, type ExportRangeKey } from '@/lib/date'
 import { exportSetsToCsv } from '@/lib/exportSets'
+import { exportNotesToCsv } from '@/lib/exportNotes'
 
 export function ExportSetsSection() {
   const [range, setRange] = useState<ExportRangeKey>('1mes')
   const [downloading, setDownloading] = useState(false)
-  const [emptyMessage, setEmptyMessage] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
 
   const handleDownload = async () => {
-    setEmptyMessage(null)
+    setMessage(null)
     setDownloading(true)
     try {
-      const start = localDateStamp(rangeStartDate(range))
-      const end = localDateStamp()
-      const sets = await listSetsInRange(start, end)
-      if (sets.length === 0) {
-        setEmptyMessage('No hay series registradas en ese período.')
+      const start = rangeStartDate(range)
+      const end = new Date()
+      const label = EXPORT_RANGE_OPTIONS.find((r) => r.key === range)!.label
+
+      const [sets, notes] = await Promise.all([
+        listSetsInRange(localDateStamp(start), localDateStamp(end)),
+        listNotesInRange(localDayBoundsIso(start).startIso, localDayBoundsIso(end).endIso),
+      ])
+
+      if (sets.length === 0 && notes.length === 0) {
+        setMessage('No hay series ni notas registradas en ese período.')
         return
       }
-      const label = EXPORT_RANGE_OPTIONS.find((r) => r.key === range)!.label
-      exportSetsToCsv(sets, label)
+
+      if (sets.length > 0) exportSetsToCsv(sets, label)
+      if (notes.length > 0) exportNotesToCsv(notes, label)
+
+      if (sets.length === 0) setMessage('No había series en ese período — solo se descargaron las notas.')
+      else if (notes.length === 0) setMessage('No había notas en ese período — solo se descargaron las series.')
     } finally {
       setDownloading(false)
     }
@@ -31,9 +43,9 @@ export function ExportSetsSection() {
   return (
     <Card className="flex flex-col gap-3">
       <div>
-        <p className="text-lg text-text-primary">Historial de series</p>
+        <p className="text-lg text-text-primary">Historial de series y notas</p>
         <p className="text-sm text-text-muted">
-          Descargá tus series de un período para revisar tu progreso — lo ideal es ajustar la rutina cada 6 a 12 semanas.
+          Descargá tus series y notas de un período para revisar tu progreso — lo ideal es ajustar la rutina cada 6 a 12 semanas.
         </p>
       </div>
 
@@ -52,10 +64,10 @@ export function ExportSetsSection() {
         ))}
       </div>
 
-      {emptyMessage && <p className="text-sm text-text-muted">{emptyMessage}</p>}
+      {message && <p className="text-sm text-text-muted">{message}</p>}
 
       <Button type="button" variant="secondary" onClick={handleDownload} disabled={downloading}>
-        {downloading ? 'Generando…' : 'Descargar series (CSV)'}
+        {downloading ? 'Generando…' : 'Descargar series + notas (CSV)'}
       </Button>
     </Card>
   )

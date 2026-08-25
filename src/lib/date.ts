@@ -84,6 +84,14 @@ export function rangeStartDate(key: ExportRangeKey, from: Date = new Date()): Da
   }
 }
 
+/** Límites del día local (00:00:00.000 a 23:59:59.999) como instantes ISO en UTC, para
+ * comparar contra columnas timestamptz sin arrastrar el bug de interpretar el string como UTC. */
+export function localDayBoundsIso(date: Date): { startIso: string; endIso: string } {
+  const start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0)
+  const end = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999)
+  return { startIso: start.toISOString(), endIso: end.toISOString() }
+}
+
 export function formatRestSeconds(seconds: number | null): string | null {
   if (seconds == null) return null
   if (seconds < 60) return `Descanso ${seconds} s`
