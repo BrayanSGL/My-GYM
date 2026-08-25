@@ -7,10 +7,10 @@ import { Card } from '@/components/ui/Card'
 import { Timer } from '@/components/ui/Timer'
 import { SetForm } from '@/components/features/sets/SetForm'
 import { useActiveRoutine } from '@/hooks/useActiveRoutine'
-import { createSet, type NewSetInput } from '@/lib/api/sets'
+import { createSet, listRecentSetsForExercise, type NewSetInput } from '@/lib/api/sets'
 import { localDateStamp, todayDayOfWeek } from '@/lib/date'
 import { clearSessionState, loadSessionState, saveSessionState, type SessionPhase, type SessionSetValues } from '@/lib/sessionState'
-import { MUSCLE_GROUPS } from '@/types/database'
+import { MUSCLE_GROUPS, type WorkoutSet } from '@/types/database'
 
 const DEFAULT_REST_SECONDS = 60
 const todayKey = localDateStamp()
@@ -18,6 +18,13 @@ const todayKey = localDateStamp()
 function parseSetsCount(schemeText: string): number {
   const match = schemeText.match(/(\d+)/)
   return match ? Number(match[1]) : 3
+}
+
+function averagePlaceholders(sets: WorkoutSet[]): { weight: string; reps: string } | null {
+  if (sets.length === 0) return null
+  const avgWeight = sets.reduce((sum, s) => sum + s.weight, 0) / sets.length
+  const avgReps = sets.reduce((sum, s) => sum + s.reps, 0) / sets.length
+  return { weight: String(Math.round(avgWeight * 2) / 2), reps: String(Math.round(avgReps)) }
 }
 
 export default function Session() {
@@ -31,6 +38,7 @@ export default function Session() {
   const [restEndsAt, setRestEndsAt] = useState<number | null>(null)
   const [lastValues, setLastValues] = useState<SessionSetValues | null>(null)
   const [hydrated, setHydrated] = useState(false)
+  const [suggested, setSuggested] = useState<{ weight: string; reps: string } | null>(null)
 
   // Al entrar, recupera el progreso guardado de hoy (si recargaste la página a mitad de la sesión).
   useEffect(() => {
@@ -53,6 +61,22 @@ export default function Session() {
     saveSessionState(routine.id, todayKey, { exerciseIndex, setIndex, phase, restEndsAt, lastValues })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated, routine?.id, exerciseIndex, setIndex, phase, restEndsAt, lastValues])
+
+  // Promedio de las últimas 12 series de este ejercicio, como referencia rápida (placeholder, no valor).
+  const currentExerciseId = todayItems[exerciseIndex]?.exercise_id
+  useEffect(() => {
+    if (!currentExerciseId) {
+      setSuggested(null)
+      return
+    }
+    let cancelled = false
+    listRecentSetsForExercise(currentExerciseId, 12).then((sets) => {
+      if (!cancelled) setSuggested(averagePlaceholders(sets))
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [currentExerciseId])
 
   if (loading || !hydrated) {
     return <p className="text-text-muted">Cargando…</p>
@@ -166,7 +190,12 @@ export default function Session() {
             </Card>
 
             {exercise && (
-              <SetForm exerciseId={exercise.id} onSubmit={handleSetLogged} initialValues={lastValues ?? undefined} />
+              <SetForm
+                exerciseId={exercise.id}
+                onSubmit={handleSetLogged}
+                initialValues={lastValues ?? undefined}
+                placeholders={suggested ?? undefined}
+              />
             )}
 
             <Button type="button" variant="secondary" onClick={advance}>

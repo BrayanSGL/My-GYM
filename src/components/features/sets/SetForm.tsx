@@ -11,13 +11,19 @@ interface SetFormInitialValues {
   note?: string
 }
 
+interface SetFormPlaceholders {
+  weight?: string
+  reps?: string
+}
+
 interface SetFormProps {
   exerciseId: string
   onSubmit: (input: NewSetInput) => Promise<void>
   initialValues?: SetFormInitialValues
+  placeholders?: SetFormPlaceholders
 }
 
-export function SetForm({ exerciseId, onSubmit, initialValues }: SetFormProps) {
+export function SetForm({ exerciseId, onSubmit, initialValues, placeholders }: SetFormProps) {
   const [weight, setWeight] = useState(initialValues?.weight ?? '')
   const [reps, setReps] = useState(initialValues?.reps ?? '')
   const [rpe, setRpe] = useState(initialValues?.rpe ?? '')
@@ -62,6 +68,7 @@ export function SetForm({ exerciseId, onSubmit, initialValues }: SetFormProps) {
           min="0"
           value={weight}
           onChange={(e) => setWeight(e.target.value)}
+          placeholder={placeholders?.weight}
           required
         />
         <Input
@@ -71,6 +78,7 @@ export function SetForm({ exerciseId, onSubmit, initialValues }: SetFormProps) {
           min="1"
           value={reps}
           onChange={(e) => setReps(e.target.value)}
+          placeholder={placeholders?.reps}
           required
         />
       </div>

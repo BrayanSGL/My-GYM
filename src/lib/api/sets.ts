@@ -21,6 +21,18 @@ export async function listSetsForExercise(exerciseId: string): Promise<WorkoutSe
   return data
 }
 
+export async function listRecentSetsForExercise(exerciseId: string, limit = 12): Promise<WorkoutSet[]> {
+  const { data, error } = await supabase
+    .from('workout_sets')
+    .select('*')
+    .eq('exercise_id', exerciseId)
+    .order('set_date', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return data
+}
+
 export async function listRecentSets(limit = 5): Promise<(WorkoutSet & { exercises: { name: string } | null })[]> {
   const { data, error } = await supabase
     .from('workout_sets')
