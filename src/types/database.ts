@@ -81,6 +81,7 @@ export interface Routine {
   user_id: string
   name: string
   is_active: boolean
+  cycle_started_at: string
   created_at: string
 }
 

@@ -4,6 +4,7 @@ import {
   deleteRoutine,
   listRoutines,
   renameRoutine,
+  resetRoutineCycle,
   setActiveRoutine,
 } from '@/lib/api/routines'
 import type { Routine } from '@/types/database'
@@ -44,5 +45,10 @@ export function useRoutines() {
     setRoutines((prev) => prev.filter((r) => r.id !== id))
   }
 
-  return { routines, loading, addRoutine, rename, activate, remove, refresh }
+  const resetCycle = async (id: string) => {
+    const updated = await resetRoutineCycle(id)
+    setRoutines((prev) => prev.map((r) => (r.id === id ? updated : r)))
+  }
+
+  return { routines, loading, addRoutine, rename, activate, remove, resetCycle, refresh }
 }

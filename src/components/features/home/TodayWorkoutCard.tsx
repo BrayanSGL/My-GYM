@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Card } from '@/components/ui/Card'
 import { todayDayOfWeek } from '@/lib/date'
+import { daysUntilReview, formatReviewCountdown } from '@/lib/routineCycle'
 import { DAYS_OF_WEEK } from '@/types/database'
 import type { RoutineExerciseWithExercise } from '@/lib/api/routines'
 import type { Routine } from '@/types/database'
@@ -30,6 +31,9 @@ export function TodayWorkoutCard({ routine, items, loading }: TodayWorkoutCardPr
         <>
           <p className="font-heading text-2xl text-text-primary">{routine.name}</p>
           <p className="text-sm text-text-muted">{todayItems.length} ejercicios</p>
+          {routine.cycle_started_at && (
+            <p className="text-xs text-accent-secondary">{formatReviewCountdown(daysUntilReview(routine.cycle_started_at))}</p>
+          )}
           <Link
             to="/sesion"
             className="flex min-h-11 items-center justify-center rounded-xl bg-[var(--button-primary-bg)] px-4 py-2.5 text-base font-medium text-[var(--button-primary-text)]"

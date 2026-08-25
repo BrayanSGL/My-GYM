@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { DayTabs } from '@/components/features/routine/DayTabs'
 import { RoutineExerciseItem } from '@/components/features/routine/RoutineExerciseItem'
 import { ExportSetsSection } from '@/components/features/routine-manager/ExportSetsSection'
+import { RoutineCycleCard } from '@/components/features/routine-manager/RoutineCycleCard'
 import { RoutineExerciseEditor } from '@/components/features/routine-manager/RoutineExerciseEditor'
 import { RoutineList } from '@/components/features/routine-manager/RoutineList'
 import { useActiveRoutine } from '@/hooks/useActiveRoutine'
@@ -96,9 +97,10 @@ function TodayView() {
 }
 
 function RoutineManager() {
-  const { routines, loading, addRoutine, rename, activate, remove } = useRoutines()
+  const { routines, loading, addRoutine, rename, activate, remove, resetCycle } = useRoutines()
   const { exercises } = useExercises()
-  const { routine: activeRoutine, items: activeItems } = useActiveRoutine()
+  const { items: activeItems } = useActiveRoutine()
+  const activeRoutine = routines.find((r) => r.is_active) ?? null
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -118,6 +120,8 @@ function RoutineManager() {
 
   return (
     <div className="flex flex-col gap-6">
+      {activeRoutine && <RoutineCycleCard routine={activeRoutine} onReset={resetCycle} />}
+
       {activeRoutine && (
         <Button
           type="button"

@@ -54,6 +54,17 @@ export async function deleteRoutine(id: string): Promise<void> {
   if (error) throw error
 }
 
+export async function resetRoutineCycle(id: string): Promise<Routine> {
+  const { data, error } = await supabase
+    .from('routines')
+    .update({ cycle_started_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
 export async function listRoutineExercises(routineId: string): Promise<RoutineExerciseWithExercise[]> {
   const { data, error } = await supabase
     .from('routine_exercises')
