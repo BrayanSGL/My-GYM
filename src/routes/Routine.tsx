@@ -79,7 +79,7 @@ function TodayView() {
     <div className="flex flex-col gap-4">
       <p className="text-text-secondary">{routine.name}</p>
 
-      <DayTabs availableDays={availableDays} value={activeDay} onChange={setSelectedDay} />
+      <DayTabs availableDays={availableDays} value={activeDay} onChange={setSelectedDay} recommendedDay={today} />
 
       <div className="flex flex-col gap-3">
         {dayItems.length === 0 ? (

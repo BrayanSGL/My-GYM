@@ -7,6 +7,7 @@ import { SetHistoryList } from '@/components/features/sets/SetHistoryList'
 import { useAuth } from '@/context/AuthProvider'
 import { getExercise, uploadExerciseGif } from '@/lib/api/exercises'
 import { useSets } from '@/hooks/useSets'
+import { averagePlaceholders, SUGGESTION_SET_COUNT } from '@/lib/setSuggestions'
 import type { Exercise } from '@/types/database'
 
 export default function ExerciseDetail() {
@@ -31,7 +32,9 @@ export default function ExerciseDetail() {
     })[0]
   }, [sets])
 
-  const handleGifChange = async (e: ChangeEvent<HTMLInputElement>) => {
+  const suggested = useMemo(() => averagePlaceholders(sets.slice(0, SUGGESTION_SET_COUNT)), [sets])
+
+  const handleGifChange =async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !id || !user) return
     setGifError(null)
@@ -80,7 +83,7 @@ export default function ExerciseDetail() {
 
       <div>
         <h2 className="mb-3 text-lg text-text-primary">Registrar serie</h2>
-        <SetForm exerciseId={id} onSubmit={addSet} />
+        <SetForm exerciseId={id} onSubmit={addSet} placeholders={suggested ?? undefined} />
       </div>
 
       <div>
