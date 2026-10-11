@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -10,7 +10,8 @@ import { useActiveRoutine } from '@/hooks/useActiveRoutine'
 import { createSet, listRecentSetsForExercise, type NewSetInput } from '@/lib/api/sets'
 import { localDateStamp, todayDayOfWeek } from '@/lib/date'
 import { clearSessionState, loadSessionState, saveSessionState, type SessionPhase, type SessionSetValues } from '@/lib/sessionState'
-import { MUSCLE_GROUPS, type WorkoutSet } from '@/types/database'
+import { averagePlaceholders, SUGGESTION_SET_COUNT } from '@/lib/setSuggestions'
+import { DAYS_OF_WEEK, MUSCLE_GROUPS, type DayOfWeek } from '@/types/database'
 
 const DEFAULT_REST_SECONDS = 60
 const todayKey = localDateStamp()
@@ -20,17 +21,14 @@ function parseSetsCount(schemeText: string): number {
   return match ? Number(match[1]) : 3
 }
 
-function averagePlaceholders(sets: WorkoutSet[]): { weight: string; reps: string } | null {
-  if (sets.length === 0) return null
-  const avgWeight = sets.reduce((sum, s) => sum + s.weight, 0) / sets.length
-  const avgReps = sets.reduce((sum, s) => sum + s.reps, 0) / sets.length
-  return { weight: String(Math.round(avgWeight * 2) / 2), reps: String(Math.round(avgReps)) }
-}
-
 export default function Session() {
   const { routine, items, loading } = useActiveRoutine()
   const today = todayDayOfWeek()
-  const todayItems = items.filter((i) => i.day_of_week === today && i.active).sort((a, b) => a.order_index - b.order_index)
+  const [searchParams] = useSearchParams()
+  const requestedDay = searchParams.get('dia')
+  const selectedDay: DayOfWeek = DAYS_OF_WEEK.find((d) => d.value === requestedDay)?.value ?? today
+  const selectedDayLabel = DAYS_OF_WEEK.find((d) => d.value === selectedDay)?.label ?? ''
+  const dayItems = items.filter((i) => i.day_of_week === selectedDay && i.active).sort((a, b) => a.order_index - b.order_index)
 
   const [exerciseIndex, setExerciseIndex] = useState(0)
   const [setIndex, setSetIndex] = useState(1)
@@ -43,7 +41,7 @@ export default function Session() {
   // Al entrar, recupera el progreso guardado de hoy (si recargaste la página a mitad de la sesión).
   useEffect(() => {
     if (!routine) return
-    const saved = loadSessionState(routine.id, todayKey)
+    const saved = loadSessionState(routine.id, todayKey, selectedDay)
     if (saved) {
       setExerciseIndex(saved.exerciseIndex)
       setSetIndex(saved.setIndex)
@@ -53,24 +51,24 @@ export default function Session() {
     }
     setHydrated(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routine?.id])
+  }, [routine?.id, selectedDay])
 
   // Guarda el progreso en cada cambio, para poder recuperarlo si recargás por error.
   useEffect(() => {
     if (!hydrated || !routine) return
-    saveSessionState(routine.id, todayKey, { exerciseIndex, setIndex, phase, restEndsAt, lastValues })
+    saveSessionState(routine.id, todayKey, selectedDay, { exerciseIndex, setIndex, phase, restEndsAt, lastValues })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated, routine?.id, exerciseIndex, setIndex, phase, restEndsAt, lastValues])
+  }, [hydrated, routine?.id, selectedDay, exerciseIndex, setIndex, phase, restEndsAt, lastValues])
 
-  // Promedio de las últimas 12 series de este ejercicio, como referencia rápida (placeholder, no valor).
-  const currentExerciseId = todayItems[exerciseIndex]?.exercise_id
+  // Promedio de las últimas 5 series de este ejercicio, como referencia rápida (placeholder, no valor).
+  const currentExerciseId = dayItems[exerciseIndex]?.exercise_id
   useEffect(() => {
     if (!currentExerciseId) {
       setSuggested(null)
       return
     }
     let cancelled = false
-    listRecentSetsForExercise(currentExerciseId, 12).then((sets) => {
+    listRecentSetsForExercise(currentExerciseId, SUGGESTION_SET_COUNT).then((sets) => {
       if (!cancelled) setSuggested(averagePlaceholders(sets))
     })
     return () => {
@@ -82,11 +80,11 @@ export default function Session() {
     return <p className="text-text-muted">Cargando…</p>
   }
 
-  if (!routine || todayItems.length === 0) {
+  if (!routine || dayItems.length === 0) {
     return (
       <div className="flex flex-col gap-3">
         <h1 className="font-heading text-3xl text-text-primary">Sesión</h1>
-        <p className="text-text-muted">No hay entrenamiento programado para hoy.</p>
+        <p className="text-text-muted">No hay entrenamiento programado para {selectedDay === today ? 'hoy' : selectedDayLabel}.</p>
         <Link to="/" className="text-sm text-accent-primary underline-offset-2 hover:underline">
           ← Volver a Inicio
         </Link>
@@ -94,15 +92,15 @@ export default function Session() {
     )
   }
 
-  const current = todayItems[Math.min(exerciseIndex, todayItems.length - 1)]
+  const current = dayItems[Math.min(exerciseIndex, dayItems.length - 1)]
   const exercise = current.exercises
   const totalSets = parseSetsCount(current.scheme_text)
   const isLastSetOfExercise = setIndex >= totalSets
-  const isLastExercise = exerciseIndex >= todayItems.length - 1
+  const isLastExercise = exerciseIndex >= dayItems.length - 1
   const groupLabel = exercise ? MUSCLE_GROUPS.find((g) => g.value === exercise.muscle_group)?.label : null
   const restRemainingSeconds = restEndsAt != null ? Math.max(0, Math.round((restEndsAt - Date.now()) / 1000)) : 0
 
-  const exitSession = () => clearSessionState(routine.id, todayKey)
+  const exitSession = () => clearSessionState(routine.id, todayKey, selectedDay)
 
   const advance = () => {
     if (!isLastSetOfExercise) {
@@ -119,7 +117,7 @@ export default function Session() {
       setPhase('exercising')
       return
     }
-    clearSessionState(routine.id, todayKey)
+    clearSessionState(routine.id, todayKey, selectedDay)
     setPhase('finished')
   }
 
@@ -140,7 +138,7 @@ export default function Session() {
     return (
       <div className="flex flex-col items-center gap-4 py-10 text-center">
         <h1 className="font-heading text-3xl text-text-primary">¡Entrenamiento completo!</h1>
-        <p className="text-text-secondary">Terminaste los {todayItems.length} ejercicios de hoy.</p>
+        <p className="text-text-secondary">Terminaste los {dayItems.length} ejercicios de {selectedDay === today ? 'hoy' : selectedDayLabel}.</p>
         <Link
           to="/"
           className="flex min-h-11 items-center justify-center rounded-xl bg-[var(--button-primary-bg)] px-6 py-2.5 text-base font-medium text-[var(--button-primary-text)]"
@@ -158,7 +156,7 @@ export default function Session() {
           ✕ Salir
         </Link>
         <p className="text-sm text-text-muted">
-          Ejercicio {exerciseIndex + 1} de {todayItems.length} · Serie {setIndex} de {totalSets}
+          Ejercicio {exerciseIndex + 1} de {dayItems.length} · Serie {setIndex} de {totalSets}
         </p>
       </div>
 

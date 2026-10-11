@@ -5,9 +5,10 @@ interface DayTabsProps {
   availableDays: DayOfWeek[]
   value: DayOfWeek
   onChange: (day: DayOfWeek) => void
+  recommendedDay?: DayOfWeek
 }
 
-export function DayTabs({ availableDays, value, onChange }: DayTabsProps) {
+export function DayTabs({ availableDays, value, onChange, recommendedDay }: DayTabsProps) {
   const days = DAYS_OF_WEEK.filter((d) => availableDays.includes(d.value))
 
   return (
@@ -25,6 +26,7 @@ export function DayTabs({ availableDays, value, onChange }: DayTabsProps) {
             }`}
           >
             {day.label}
+            {day.value === recommendedDay && <span className="ml-1.5 text-xs opacity-80">· Hoy</span>}
           </motion.button>
         )
       })}
